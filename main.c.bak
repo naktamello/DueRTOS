@@ -1,0 +1,630 @@
+/*standard lib includes*/
+#include <cross_studio_io.h>
+#include <stdio.h>
+#include <string.h>
+//#include <stdio_serial.h>
+
+/*board includes*/
+ /*system*/
+   #include <sam3x8e.h>
+   #include <sysclk.h>
+   #include <pmc.h>
+ /*peripherals*/
+   #include <gpio.h>
+   #include <pio.h>
+   #include <serial.h>
+   #include <uart.h>
+   #include <spi_master.h>
+   #include <sd_mmc.h>
+   #include <adc.h>
+   #include <dmac.h>
+   #include <pwm.h>
+
+/*FreeRTOS includes*/
+#include <FreeRTOS.h>
+#include <semphr.h>
+#include <task.h>
+#include <portmacro.h>
+#include <freertos_uart_serial.h>
+
+/*FatFs includes*/
+#include <ff.h>
+#include <ctrl_access.h>
+
+/*user includes*/
+#include <dht11.h>
+#include <ili9341.h>
+//#include <spi_my.h>
+//#include <sd_spi_my.h>
+//#include <init_my.h>
+
+
+/*peripheral defines*/
+//SPI & UART
+#define STRING_BUFFER_SIZE            256
+#define SPI_SD_CARD                   SPI0
+#define SPI_DEVICE_SD_CARD_ID         (0x0)
+#define SPI_SD_CARD_BAUDRATE          2100000
+#define SPI_TFT_DISPLAY               SPI0
+#define SPI_DEVICE_TFT_DISPLAY_ID     (0x1)
+#define SPI_TFT_DISPLAY_BAUDRATE      2100000
+struct spi_device SPI_DEVICE_SD_CARD = {
+	.id = SPI_DEVICE_SD_CARD_ID};
+struct spi_device SPI_DEVICE_TFT_DISPLAY = {
+	.id = SPI_DEVICE_TFT_DISPLAY_ID};
+//LED
+#define LED_PORT_ID                   ID_PIOB
+#define LED_PORT                      PIOB
+#define LED                           (1 << 14)
+//Relay
+#define RELAY_PORT_ID                   ID_PIOC
+#define RELAY_PORT                      PIOC
+#define RELAY                           (1 << 13)
+//PWM
+#define PWM_PIN_FLAGS                 (PIO_PERIPH_B | PIO_DEFAULT)
+#define PWM_PIN_IDX                   PIO_PC23_IDX
+#define PWM_PIN_CHANNEL               PWM_CHANNEL_6
+#define PWM_FREQUENCY                 523  
+#define PERIOD_VALUE                  100
+#define INIT_DUTY_VALUE               0
+pwm_channel_t g_pwm_channel_0;
+//DMA
+#define DMA_CH 0
+
+
+/*FreeRTOS hook functions*/
+void vApplicationMallocFailedHook( void );
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName );
+
+/*initialization code*/
+static void prvSetupHardware( void );
+static void setup_dmac(void);
+static void setup_io_pin(void);
+static void setup_adc(void);
+static void setup_uart(void);
+static void setup_spi(void);
+static void setup_pwm(void);
+
+/*basic io driver*/
+static void uart_write_char(char ch)
+{
+  while (!(UART->UART_SR & UART_SR_TXRDY));
+  UART->UART_THR = ch;
+}
+void __putchar(int ch)
+{
+  if (ch == '\n')
+      uart_write_char('\r');
+  uart_write_char(ch);
+}
+
+/*app functions*/
+static void board_set_led(unsigned v, int led);
+static void update_display(void);
+int test_sd(void);
+int sd_bmp_read(void);
+void ADC_IrqHandler(void);
+
+/*FreeRTOS tasks*/
+static void vBlinkTask ( void *pvParameters );
+static void vPeriodicTask ( void *pvParameters );
+static void vAdcTask ( void *pvParameters );
+static void vDhtTask ( void *pvParameters );
+static void vPwmTask ( void *pvParameters );
+static void vRelayTask ( void *pvParameters );
+
+/*static variables*/
+static uint8_t dht_value[5];
+static uint8_t uart_rx_buffer[50];
+static uint32_t adc_value;
+static bool display_initialized = false;
+
+/*global variables*/
+xSemaphoreHandle xBinarySemaphore;
+
+int main(void)
+{
+  /*board initialization*/
+  vSemaphoreCreateBinary( xBinarySemaphore );
+    while( xBinarySemaphore == NULL);
+  prvSetupHardware();
+
+  /*task initialization*/
+  xTaskCreate( vPeriodicTask, "PERIODIC", 512, NULL, 2, NULL );
+  xTaskCreate( vBlinkTask, "BLINK", configMINIMAL_STACK_SIZE, NULL, 1, NULL );
+  xTaskCreate( vAdcTask,"ADC", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
+  xTaskCreate( vDhtTask, "DHT", 256, NULL, 3, NULL );
+  xTaskCreate( vRelayTask, "RELAY", 256, NULL, 1, NULL );
+ //xTaskCreate( vPwmTask, "PWN", 512, NULL, 2, NULL );
+  vTaskStartScheduler();
+
+  /*should not reach here if RTOS is used*/
+  for(;;)
+  {
+    board_set_led(1, LED);
+    delay_ms(100);
+     board_set_led(0, LED);
+    delay_ms(100);
+  }
+
+}
+
+static void vBlinkTask( void *pvParameters )
+{
+  static bool led_state = 0;
+    for(;;)
+      {
+      board_set_led(led_state, LED);
+      led_state = !led_state;
+      vTaskDelay( 1000 / portTICK_RATE_MS);
+      }
+}
+
+static void vPeriodicTask ( void *pvParameters )
+{
+  //int sd_status = 0;
+  static int count = 0;
+  static char stats_buffer[STRING_BUFFER_SIZE];
+  const char stats_table_header[] = "  Task      Abs Time     % Time\r\n"
+                                    "********************************\r\n";
+    for(;;)
+    {
+      xSemaphoreGive(xBinarySemaphore);
+
+      if (!(count%5))
+      update_display();
+
+      if (!(count%3))
+        {
+         vTaskGetRunTimeStats(stats_buffer);
+         freertos_uart_write_packet( UART, stats_table_header,
+                                   strlen(stats_table_header),
+                                   ( 2000 / portTICK_RATE_MS) );
+         freertos_uart_write_packet( UART, stats_buffer,
+                                    STRING_BUFFER_SIZE,
+                                   ( 2000 / portTICK_RATE_MS) );
+        }
+
+      count++;
+      vTaskDelay( 1000 / portTICK_RATE_MS);
+    }
+}
+
+static void vAdcTask ( void *pvParameters )
+{
+  adc_start(ADC);
+  xSemaphoreTake( xBinarySemaphore, 0 );
+    for( ;; )
+    {
+    xSemaphoreTake( xBinarySemaphore, 200/portTICK_RATE_MS);
+       if ((adc_get_status(ADC) & ADC_ISR_DRDY) == ADC_ISR_DRDY)    //Check the ADC conversion status
+        {
+        adc_value = adc_get_latest_value(ADC);
+        //printf("ADC value = %4d\n", adc_value);
+        }
+    adc_start(ADC);
+    }
+}
+
+static void vDhtTask ( void *pvParamters )
+{
+  static int dht_status;
+      for( ;; )
+      {
+       //taskENTER_CRITICAL();
+       dht_status = dht_read_sensor(dht_value);
+       //taskEXIT_CRITICAL();
+
+        if (dht_status)
+          {
+          /*
+          puts("----------");
+          printf(" R/H   T   \n");
+          printf("%3d%% %3dc\n", dht_value[0], dht_value[2]);
+          puts("----------");
+          */
+          }
+        else
+        puts("DHT read fail");
+          vTaskDelay( 1000 / portTICK_RATE_MS);
+      }
+}
+
+static void vPwmTask( void *pvParameters )
+{
+static uint32_t ul_count = 0;
+static uint32_t ul_duty = INIT_DUTY_VALUE;
+static uint32_t ul_period = 100;
+static uint8_t fade_in = 1;
+for (;;)
+  {
+//  ul_count++;
+//        if (ul_count == (PWM_FREQUENCY / (PERIOD_VALUE - INIT_DUTY_VALUE))) {
+//            /* Fade in */
+//            if (fade_in) {
+//                    ul_duty++;
+//                    if (ul_duty == PERIOD_VALUE) {
+//                            fade_in = 0;
+//                    }
+//            } else {
+//                    /* Fade out */
+//                    ul_duty--;
+//                    if (ul_duty == INIT_DUTY_VALUE) {
+//                            fade_in = 1;
+//                    }
+//            }
+//            /* Set new duty cycle */
+//            ul_count = 0;
+//            g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+//            pwm_channel_update_duty(PWM, &g_pwm_channel_0, ul_duty);
+//        }
+           ul_duty = 20;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_duty(PWM, &g_pwm_channel_0, ul_duty);
+
+           ul_period = 200;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 159;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 134;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 100;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 79;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+                      ul_period = 134;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 100;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+           ul_period = 79;
+           g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+           pwm_channel_update_period(PWM, &g_pwm_channel_0, ul_period);
+           vTaskDelay( 300 / portTICK_RATE_MS);
+
+  }
+
+}
+
+static void vRelayTask ( void *pvParameters )
+{
+  for (;;)
+   {
+    if (dht_value[0] > 80)
+        pio_set(RELAY_PORT, RELAY);
+
+    else
+        pio_clear(RELAY_PORT, RELAY);
+        vTaskDelay( 10000 / portTICK_RATE_MS);
+   }
+}
+
+static void prvSetupHardware( void )
+{
+    /* FreeRTOS init */
+    extern void SystemCoreClockUpdate( void );
+    NVIC_SetPriorityGrouping(0);  //Ensure all priority bits are assigned as preemption priority bits.
+
+    /*board specific init*/
+    sysclk_init();
+    board_init();
+
+    /*app specific peripherals*/
+    setup_spi();
+    setup_uart();
+    setup_io_pin();
+    setup_adc();
+    setup_pwm();
+    //sd_mmc_init();
+    dht_init();
+    ILI9341_init(ILI9341_ORIENTATION_LANDSCAPE);
+}
+
+
+static void board_set_led(unsigned v, int led)
+{
+  if (v)
+  pio_set(LED_PORT, led);
+    //PIOB->PIO_CODR = led;
+  else
+  pio_clear(LED_PORT, led);
+    //PIOB->PIO_SODR = led;
+}
+
+
+static void update_display(void)
+{
+  
+  const int line = 30;
+  const int margin = 10;
+  const int font_size = 3;
+  char adc_label[] = "Set point";
+  char dht_label[]="R/H   T";
+  
+  if (!display_initialized)
+    {
+    ILI9341_draw_string(adc_label, margin, margin, font_size, YELLOW);
+    ILI9341_draw_string(dht_label, (margin), (line*2+margin), font_size, YELLOW);
+    display_initialized = true;
+    }
+  
+  ILI9341_fill_screen_xy(0,(ILI9341_TFTHEIGHT/3), (line+margin), (line*2+margin), BLACK);
+  ILI9341_fill_screen_xy(0,(ILI9341_TFTHEIGHT/2) ,(line*3+margin),(line*4+margin),BLACK);
+
+  char adc_str[5];
+  itoa(adc_value, adc_str, 10);
+  ILI9341_draw_string(adc_str, margin, (line+margin), font_size, RED);
+  
+  char humidity_str[4];
+  itoa(dht_value[0], humidity_str, 10);
+  ILI9341_draw_string(humidity_str, (margin), (line*3+margin), 3, RED);
+  char temperature_str[4];
+  itoa(dht_value[2], temperature_str, 10);
+  ILI9341_draw_string(temperature_str, (margin*10), (line*3+margin), 3, RED);  
+}
+
+int test_sd(void)
+{
+  char test_file_name[] = "0:hello_world.txt";
+  Ctrl_status status;
+  FRESULT res;
+  FATFS fs;
+  FIL file_object;
+ 
+  puts("Please plug an SD, MMC or SDIO card in slot.");
+
+    /* Wait card present and ready */
+    do {
+        status = sd_mmc_test_unit_ready(0);
+          if (CTRL_FAIL == status)
+          {
+          puts("Card install FAIL. Please unplug and re-plug the card.");
+            while (CTRL_NO_PRESENT != sd_mmc_check(0)) 
+            {
+            }
+          }
+      } while (CTRL_GOOD != status);
+
+  puts("Mount disk (f_mount)...");
+  memset(&fs, 0, sizeof(FATFS));
+  res = f_mount(LUN_ID_SD_MMC_0_MEM, &fs);
+    if (FR_INVALID_DRIVE == res)
+      {
+        printf("[FAIL] %d\n", res);
+	return false;
+      }
+    else
+      puts("[OK]");
+
+  puts("Create a file (f_open)...");
+  test_file_name[0] = LUN_ID_SD_MMC_0_MEM + '0';
+  res = f_open( &file_object, (char const *)test_file_name, 
+                FA_CREATE_ALWAYS | FA_WRITE);
+    if (res != FR_OK)
+      {
+      printf("[FAIL] %d\n", res);
+      return false;
+      }
+    else
+      puts("[OK]");
+
+  puts("Write to test file (f_puts)...\r\n");
+  if (0 == f_puts("I like big butts and I cannot lie :)\n", &file_object))
+    {
+      f_close(&file_object);
+      printf("[FAIL] %d\n", res);
+      return false;
+    }
+    else
+      puts("[OK]");
+
+  f_close(&file_object);
+  puts("Test is successful. Please unplug the card.");
+
+  return true;
+}
+
+
+int sd_bmp_read(void)
+{
+  char file_name[] = "0:hibiscus.bmp";
+  Ctrl_status status;
+  FRESULT res;
+  FATFS fs;
+  FIL file_object;
+  static char buffer[512];
+  int bytes_read;
+
+  puts("reading bmp from SD...");
+
+    /* Wait card present and ready */
+    do {
+        status = sd_mmc_test_unit_ready(0);
+          if (CTRL_FAIL == status)
+          {
+          puts("Card install FAIL. Please unplug and re-plug the card.");
+            while (CTRL_NO_PRESENT != sd_mmc_check(0)) 
+            {
+            }
+          }
+      } while (CTRL_GOOD != status);
+
+  puts("Mount disk (f_mount)...");
+  memset(&fs, 0, sizeof(FATFS));
+  res = f_mount(LUN_ID_SD_MMC_0_MEM, &fs);
+    if (FR_INVALID_DRIVE == res)
+      {
+        printf("[MOUNT FAIL] %d\n", res);
+	return false;
+      }
+    else
+      puts("[MOUNTED]");
+
+    puts("open bitmap (f_open)...");
+    file_name[0] = LUN_ID_SD_MMC_0_MEM + '0';
+    res = f_open(&file_object,
+    (char const *)file_name,
+    FA_READ | FA_OPEN_EXISTING);
+    if (res != FR_OK) {
+        printf("[OPEN FAIL] %d\n", res);
+    }
+    else
+      {
+      puts("[OPENED]");
+      /*res = f_read(&file_object, buffer, 512, &bytes_read);
+      delay_ms(10);
+      for (int i = 0; i < 5; i++)
+          printf("0x%8x\r\n", ILI9341_read32(&file_object));
+      delay_us(100);*/
+     ILI9341_read_header(&file_object); 
+     ILI9341_bmp_draw(&file_object, 0, 0);
+      }
+}
+
+static void setup_dmac(void)
+{
+  uint32_t cfg;
+  cfg = DMAC_CFG_SOD_ENABLE | DMAC_CFG_AHB_PROT(1) | DMAC_CFG_FIFOCFG_ALAP_CFG;
+
+  pmc_enable_periph_clk(ID_DMAC);
+  dmac_init(DMAC);
+  dmac_set_priority_mode(DMAC, DMAC_PRIORITY_ROUND_ROBIN);
+  dmac_enable(DMAC);
+  dmac_channel_set_configuration(DMAC, DMA_CH, cfg);
+}
+
+static void setup_io_pin(void)
+{
+  pmc_enable_periph_clk(LED_PORT_ID);
+  pio_set_output(LED_PORT, LED, 0, 0, 0);
+
+  pmc_enable_periph_clk(RELAY_PORT_ID);
+  pio_set_output(RELAY_PORT, RELAY, 0, 0, 0);
+}
+
+static void setup_adc(void)
+{
+  pmc_enable_periph_clk(ID_ADC);
+  adc_init(ADC, sysclk_get_main_hz(), 6400000, ADC_STARTUP_TIME_4);
+  adc_configure_timing(ADC, 0, ADC_SETTLING_TIME_3, 1);
+  adc_set_resolution(ADC, ADC_MR_LOWRES_BITS_12);
+  adc_enable_channel(ADC, ADC_CHANNEL_5);
+  adc_enable_interrupt(ADC, ADC_IER_DRDY);
+  adc_configure_trigger(ADC, ADC_TRIG_SW, 0);
+}
+
+static void setup_pwm(void)
+{
+  gpio_configure_pin(PWM_PIN_IDX, PWM_PIN_FLAGS);
+  pmc_enable_periph_clk(ID_PWM);
+  pwm_channel_disable(PWM, PWM_CHANNEL_6);
+  pwm_clock_t clock_setting = {
+          .ul_clka = PWM_FREQUENCY * PERIOD_VALUE,
+          .ul_clkb = 0,
+          .ul_mck = sysclk_get_cpu_hz()
+  };
+  pwm_init(PWM, &clock_setting);
+
+  /* Initialize PWM channel for LED0 */
+  /* Period is left-aligned */
+  g_pwm_channel_0.alignment = PWM_ALIGN_CENTER;
+  /* Output waveform starts at a low level */
+  g_pwm_channel_0.polarity = PWM_HIGH;
+  /* Use PWM clock A as source clock */
+  g_pwm_channel_0.ul_prescaler = PWM_CMR_CPRE_CLKA;
+  /* Period value of output waveform */
+  g_pwm_channel_0.ul_period = PERIOD_VALUE;
+  /* Duty cycle value of output waveform */
+  g_pwm_channel_0.ul_duty = INIT_DUTY_VALUE;
+  g_pwm_channel_0.channel = PWM_PIN_CHANNEL;
+  pwm_channel_init(PWM, &g_pwm_channel_0);
+  pwm_channel_enable(PWM, PWM_PIN_CHANNEL);
+}
+
+void ADC_IrqHandler(void)
+{
+  puts("adc irq");  
+  portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+  adc_get_status(ADC);
+  xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken);
+  portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+  adc_start(ADC);  
+}
+
+
+static void setup_uart(void)
+{
+    sam_uart_opt_t uart_settings;
+    uart_settings.ul_mck = sysclk_get_peripheral_hz();
+    uart_settings.ul_baudrate = 115200;
+    uart_settings.ul_mode = UART_MR_PAR_NO;
+    freertos_peripheral_options_t driver_options = {
+            uart_rx_buffer,									/* The buffer used internally by the UART driver to store incoming characters. */
+            50,							/* The size of the buffer provided to the UART driver to store incoming characters. */
+            configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY,	/* The priority used by the UART interrupts. */
+            UART_RS232,									/* Configure the UART for RS232 operation. */
+            (WAIT_TX_COMPLETE | USE_TX_ACCESS_MUTEX)		/* Use access mutex on Tx (as more than one task transmits) but not Rx. Wait for a Tx to complete before returning from send functions. */
+    };
+
+     sysclk_enable_peripheral_clock(CONSOLE_UART_ID);
+     freertos_uart_serial_init(UART, &uart_settings, &driver_options);
+}
+
+static void setup_spi(void)
+{
+  pmc_enable_periph_clk(ID_SPI0);
+  spi_master_init(SPI0);
+  //spi_set_variable_peripheral_select(SPI0);
+  //spi_master_setup_device(SPI_SD_CARD, &SPI_DEVICE_SD_CARD, SPI_MODE_0,
+  //SPI_SD_CARD_BAUDRATE, 0);
+  spi_master_setup_device(SPI_TFT_DISPLAY, &SPI_DEVICE_TFT_DISPLAY, SPI_MODE_0,
+  SPI_TFT_DISPLAY_BAUDRATE, 1);
+  spi_enable(SPI0);
+}
+
+void vApplicationMallocFailedHook( void )
+{
+	/* vApplicationMallocFailedHook() will only be called if
+	configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h.  It is a hook
+	function that will get called if a call to pvPortMalloc() fails.
+	pvPortMalloc() is called internally by the kernel whenever a task, queue,
+	timer or semaphore is created.  It is also called by various parts of the
+	demo application.  If heap_1.c or heap_2.c are used, then the size of the
+	heap available to pvPortMalloc() is defined by configTOTAL_HEAP_SIZE in
+	FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
+	to query the size of free heap space that remains (although it does not
+	provide information on how the remaining heap might be fragmented). */
+	taskDISABLE_INTERRUPTS();
+	for( ;; );
+}
+void vApplicationStackOverflowHook( TaskHandle_t pxTask, char *pcTaskName )
+{
+	( void ) pcTaskName;
+	( void ) pxTask;
+
+	/* Run time stack overflow checking is performed if
+	configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2.  This hook
+	function is called if a stack overflow is detected. */
+	taskDISABLE_INTERRUPTS();
+	for( ;; );
+}

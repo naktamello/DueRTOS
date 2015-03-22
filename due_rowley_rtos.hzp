@@ -1,0 +1,217 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="due_rowley_rtos" target="8" version="2">
+  <project Name="due_rowley_rtos">
+    <configuration
+      Name="Common"
+      Target="SAM3X8E"
+      arm_architecture="v7M"
+      arm_compiler_variant="gcc"
+      arm_core_type="Cortex-M3"
+      arm_debugIO_Implementation="None"
+      arm_fpu_type="None"
+      arm_gcc_target="arm-unknown-eabi"
+      arm_interwork="No"
+      arm_linker_emit_relocations="No"
+      arm_linker_heap_size="256"
+      arm_linker_process_stack_size="512"
+      arm_linker_stack_size="512"
+      arm_simulator_memory_simulation_filename="$(TargetsDir)/SAM/SAMSimulatorMemory.dll"
+      arm_simulator_memory_simulation_parameter="SAM3X;0x80000;0x0;0x10000;0x8000;0;0;0;0"
+      arm_target_debug_interface_type="ADIv5"
+      arm_target_interface_type="JTAG"
+      arm_target_loader_reset_after_download="Yes"
+      arm_target_stop_cpu_using_dbgrq="No"
+      arm_target_use_debug_handler="Default"
+      c_preprocessor_definitions="STARTUP_FROM_RESET;BOARD = ARDUINO_DUE_X;USE_PROCESS_STACK"
+      c_user_include_directories="$(TargetsDir)/SAM/CMSIS/Device/ATMEL;$(TargetsDir)/SAM/CMSIS/Device/ATMEL/$(SAM_Series)/include;//D:/Program Files2/Atmel/Atmel Toolchain/ARM GCC/Native/4.8.1429/arm-gnu-toolchain/arm-none-eabi/include;$(TargetsDir)/CMSIS_3/CMSIS/Include;$(TargetsDir)/SAM;$(ProjectDir);$(ProjectDir)/include;$(ProjectDir)/board_source;$(ProjectDir)/board_source/pdc;$(ProjectDir)/board_source/uart;$(ProjectDir)/board_source/usart;$(ProjectDir)/board_source/serial;$(ProjectDir)/board_source/adc;$(ProjectDir)/board_source/spi;$(ProjectDir)/board_source/delay;$(ProjectDir)/board_source/pmc;$(ProjectDir)/board_source/clock;$(ProjectDir)/board_source/ioport;$(ProjectDir)/board_source/pio;$(ProjectDir)/board_source/rtc;$(ProjectDir)/board_source/ctrl_access;$(ProjectDir)/board_source/pwm;$(ProjectDir)/board_source/fatfs/fatfs-r0.09/src;$(ProjectDir)/board_source/fatfs/fatfs-port-r0.09;$(ProjectDir)/board_source/fatfs/fatfs-port-r0.09/sam;$(ProjectDir)/FreeRTOS"
+      debug_entry_point_symbol="reset_handler"
+      debug_threads_script="/home/camel/workspace/crossworks/due_RTOS/threads_CM3.js"
+      gcc_debugging_level="Level 2"
+      gcc_optimization_level="Level 2"
+      libctl="No"
+      link_include_startup_code="No"
+      linker_memory_map_file="$(TargetsDir)/SAM/SAM3X8E_MemoryMap.xml"
+      macros="SAM_Series=sam3xa"
+      package_dependencies="SAM"
+      project_directory=""
+      project_type="Executable"
+      property_groups_file_path="$(TargetsDir)/SAM/propertyGroups.xml"
+      target_get_partname_script="GetPartName()"
+      target_match_partname_script="MatchPartName(&quot;$(Target)&quot;)"
+      target_reset_script="SAM3XA_Reset()"
+      target_script_file="/home/camel/workspace/crossworks/due_RTOS/SAM_Target.js" />
+    <configuration
+      Name="Flash"
+      Placement="Flash"
+      arm_target_flash_loader_file_path="$(TargetsDir)/SAM/Release/Loader_$(SAM_Series).elf"
+      arm_target_flash_loader_type="LIBMEM RPC Loader"
+      linker_section_placement_file="$(TargetsDir)/SAM/flash_placement.xml" />
+    <configuration
+      Name="RAM"
+      Placement="RAM"
+      linker_section_placement_file="$(TargetsDir)/SAM/ram_placement.xml" />
+    <folder Name="Source Files">
+      <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
+      <file file_name="main.c">
+        <configuration Name="Common" gcc_optimization_level="Level 2" />
+      </file>
+      <file file_name="init_my.h" />
+      <file file_name="board_source/sd_mmc_protocol.h" />
+      <file file_name="board_source/ctrl_access/ctrl_access.c" />
+      <file file_name="board_source/ctrl_access/ctrl_access.h" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/diskio.h" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/ff.c" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/ff.h" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/ffconf.h" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/integer.h" />
+      <file file_name="board_source/fatfs/fatfs-port-r0.09/diskio.c" />
+      <file file_name="board_source/fatfs/fatfs-port-r0.09/sam/fattime_rtc.c" />
+      <file file_name="board_source/conf_access.h" />
+      <file file_name="board_source/board.h" />
+      <file file_name="board_source/arduino_due_x/arduino_due_x.h" />
+      <file file_name="board_source/arduino_due_x/init.c" />
+      <file file_name="board_source/exceptions.c" />
+      <file file_name="board_source/exceptions.h" />
+      <file file_name="board_source/sd_mmc_mem.c" />
+      <file file_name="board_source/sd_mmc_mem.h" />
+      <file file_name="board_source/conf_fatfs.h" />
+      <file file_name="board_source/conf_board.h" />
+      <file file_name="board_source/conf_sd_mmc.h" />
+      <file file_name="board_source/gpio.h" />
+      <file file_name="board_source/sam_gpio/sam_gpio.h" />
+      <file file_name="board_source/pio/pio.c" />
+      <file file_name="board_source/pio/pio.h" />
+      <file file_name="board_source/pio/pio_handler.c" />
+      <file file_name="board_source/pio/pio_handler.h" />
+      <file file_name="board_source/ioport/ioport.h" />
+      <file file_name="board_source/ioport/sam/ioport_pio.h" />
+      <file file_name="board_source/clock/genclk.h" />
+      <file file_name="board_source/clock/osc.h" />
+      <file file_name="board_source/clock/pll.h" />
+      <file file_name="board_source/clock/sysclk.h" />
+      <file file_name="board_source/clock/sam3x/genclk.h" />
+      <file file_name="board_source/clock/sam3x/osc.h" />
+      <file file_name="board_source/clock/sam3x/pll.h" />
+      <file file_name="board_source/clock/sam3x/sysclk.c" />
+      <file file_name="board_source/clock/sam3x/sysclk.h" />
+      <file file_name="board_source/conf_clock.h" />
+      <file file_name="board_source/pmc/pmc.c" />
+      <file file_name="board_source/pmc/pmc.h" />
+      <file file_name="board_source/pmc/sleep.h" />
+      <file file_name="board_source/sd_mmc.c" />
+      <file file_name="board_source/sd_mmc.h" />
+      <file file_name="board_source/delay/delay.h">
+        <configuration
+          Name="THUMB Flash Debug"
+          build_exclude_from_build="No" />
+      </file>
+      <file file_name="board_source/delay/sam/cycle_counter.c" />
+      <file file_name="board_source/delay/sam/cycle_counter.h" />
+      <file file_name="board_source/sd_mmc_spi.c" />
+      <file file_name="board_source/sd_mmc_spi.h" />
+      <file file_name="board_source/spi/sam_spi/spi_master.c" />
+      <file file_name="board_source/spi.c" />
+      <file file_name="board_source/spi.h" />
+      <file file_name="board_source/fatfs/fatfs-r0.09/src/option/ccsbcs.c" />
+      <file file_name="board_source/adc/adc.c" />
+      <file file_name="board_source/adc/adc.h" />
+      <file file_name="board_source/adc/adc_sam3u.c" />
+      <file file_name="board_source/component_adc.h" />
+      <file file_name="board_source/serial/serial.h" />
+      <file file_name="board_source/serial/usart_serial.c" />
+      <file file_name="board_source/serial/sam_uart/uart_serial.h" />
+      <file file_name="board_source/uart/uart.c" />
+      <file file_name="board_source/uart/uart.h" />
+      <file file_name="board_source/usart/usart.c" />
+      <file file_name="board_source/usart/usart.h" />
+      <file file_name="board_source/stdio/read.c" />
+      <file file_name="board_source/stdio/write.c" />
+      <file file_name="board_source/pdc/pdc.c" />
+      <file file_name="board_source/pdc/pdc.h" />
+      <file file_name="$(StudioDir)/include/string.h" />
+      <file file_name="dht11.h" />
+      <file file_name="dht11.c" />
+      <file file_name="ili9341.c" />
+      <file file_name="ili9341.h" />
+      <file file_name="board_source/component_dmac.h" />
+      <file file_name="run-time-stats-utils.c" />
+      <file file_name="board_source/pwm/pwm.c" />
+      <file file_name="board_source/pwm/pwm.h" />
+    </folder>
+    <folder Name="System Files">
+      <file file_name="$(StudioDir)/source/thumb_crt0.s" />
+      <file file_name="$(TargetsDir)/SAM/SAM_Target.js">
+        <configuration Name="Common" file_type="Reset Script" />
+      </file>
+      <file file_name="SAM3XA_Startup.s">
+        <configuration Name="Common" file_type="Assembly" />
+      </file>
+    </folder>
+    <folder Name="CMSIS Files">
+      <file file_name="$(TargetsDir)/SAM/system_sam.c" />
+    </folder>
+    <folder Name="FreeRTOS">
+      <file file_name="FreeRTOS/croutine.c" />
+      <file file_name="FreeRTOS/event_groups.c" />
+      <file file_name="FreeRTOS/list.c" />
+      <file file_name="FreeRTOS/queue.c" />
+      <file file_name="FreeRTOS/tasks.c" />
+      <file file_name="FreeRTOS/timers.c" />
+      <file file_name="portable/GCC/ARM_CM3/port.c" />
+      <file file_name="FreeRTOS/FreeRTOSConfig.h" />
+      <file file_name="FreeRTOS/freertos_uart_serial.c" />
+      <file file_name="FreeRTOS/freertos_uart_serial.h" />
+      <file file_name="FreeRTOS/freertos_usart_serial.c" />
+      <file file_name="FreeRTOS/freertos_usart_serial.h" />
+      <file file_name="FreeRTOS/freertos_peripheral_control.c" />
+      <file file_name="FreeRTOS/freertos_peripheral_control.h" />
+      <file file_name="FreeRTOS/freertos_peripheral_control_private.h" />
+      <file file_name="board_source/dmac.h" />
+      <file file_name="FreeRTOS/heap_4.c" />
+    </folder>
+  </project>
+  <configuration
+    Name="THUMB RAM Debug"
+    inherited_configurations="THUMB;RAM;Debug" />
+  <configuration
+    Name="THUMB"
+    Platform="ARM"
+    arm_instruction_set="Thumb"
+    arm_library_instruction_set="Thumb"
+    c_preprocessor_definitions="__THUMB"
+    hidden="Yes" />
+  <configuration
+    Name="RAM"
+    c_preprocessor_definitions="__RAM_BUILD"
+    hidden="Yes" />
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG"
+    gcc_debugging_level="Level 3"
+    gcc_optimization_level="None"
+    hidden="Yes" />
+  <configuration
+    Name="THUMB RAM Release"
+    inherited_configurations="THUMB;RAM;Release" />
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_debugging_level="Level 1"
+    gcc_optimization_level="Level 1"
+    hidden="Yes" />
+  <configuration
+    Name="THUMB Flash Debug"
+    inherited_configurations="THUMB;Flash;Debug" />
+  <configuration
+    Name="Flash"
+    c_preprocessor_definitions="__FLASH_BUILD"
+    hidden="Yes" />
+  <configuration
+    Name="THUMB Flash Release"
+    inherited_configurations="THUMB;Flash;Release" />
+  <configuration
+    Name="Common"
+    arm_architecture="v7M"
+    arm_core_type="Cortex-M3"
+    c_preprocessor_definitions="" />
+</solution>

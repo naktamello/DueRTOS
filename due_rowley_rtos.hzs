@@ -1,0 +1,87 @@
+<!DOCTYPE CrossStudio_for_ARM_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints>
+  <BreakpointListItem line="75" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/FreeRTOSConfig.h" expression="" />
+  <BreakpointListItem line="279" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/board_source/serial/sam_uart/uart_serial.h" expression="" />
+  <BreakpointListItem line="282" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/board_source/serial/sam_uart/uart_serial.h" expression="" />
+  <BreakpointListItem line="288" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/board_source/uart_serial.h" expression="" />
+  <BreakpointListItem line="291" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/board_source/uart_serial.h" expression="" />
+  <BreakpointListItem line="506" action="" hardwareBreakpoint="" trigger="" useHWbreakpoint="false" group="Breakpoints" type="Breakpoint" state="4" counter="0" isFunctionBreakpoint="false" filename="C:/Users/Joseph/Documents/CrossWorks Projects/due_RTOS/board_source/serial/sam_uart/uart_serial.h" expression="" />
+ </Breakpoints>
+ <ExecutionProfileWindow/>
+ <FrameBufferWindow>
+  <FrameBufferWindow addressText="" bufferWidth="-1" bufferHeight="-1" addressSpace="" />
+ </FrameBufferWindow>
+ <Memory1>
+  <MemoryWindow autoEvaluate="1" addressText="0x20072570" numColumns="8" sizeText="128" dataSize="1" radix="16" name="due_rowley_rtos" addressSpace="" />
+ </Memory1>
+ <Memory2>
+  <MemoryWindow autoEvaluate="0" addressText="" numColumns="8" sizeText="" dataSize="1" radix="16" name="due_rowley_rtos" addressSpace="" />
+ </Memory2>
+ <Memory3>
+  <MemoryWindow autoEvaluate="0" addressText="" numColumns="8" sizeText="" dataSize="1" radix="16" name="due_rowley_rtos" addressSpace="" />
+ </Memory3>
+ <Memory4>
+  <MemoryWindow autoEvaluate="0" addressText="" numColumns="8" sizeText="" dataSize="1" radix="16" name="due_rowley_rtos" addressSpace="" />
+ </Memory4>
+ <Project>
+  <ProjectSessionItem path="due_rowley_rtos" name="unnamed" />
+  <ProjectSessionItem path="due_rowley_rtos;due_rowley_rtos" name="unnamed" />
+  <ProjectSessionItem path="due_rowley_rtos;due_rowley_rtos;FreeRTOS" name="unnamed" />
+  <ProjectSessionItem path="due_rowley_rtos;due_rowley_rtos;Source Files" name="unnamed" />
+  <ProjectSessionItem path="due_rowley_rtos;due_rowley_rtos;System Files" name="unnamed" />
+ </Project>
+ <Register1>
+  <RegisterWindow openNodes="CPU - Current Context;CPU - Current Context/apsr;CPU" binaryNodes="" unsignedNodes="" decimalNodes="" octalNodes="" asciiNodes="" visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" name="due_rowley_rtos" />
+ </Register1>
+ <Register2>
+  <RegisterWindow openNodes="CPU - Current Context" binaryNodes="" unsignedNodes="" decimalNodes="" octalNodes="" asciiNodes="" visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" name="due_rowley_rtos" />
+ </Register2>
+ <Register3>
+  <RegisterWindow openNodes="CPU - Current Context" binaryNodes="" unsignedNodes="" decimalNodes="" octalNodes="" asciiNodes="" visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" name="due_rowley_rtos" />
+ </Register3>
+ <Register4>
+  <RegisterWindow openNodes="CPU - Current Context" binaryNodes="" unsignedNodes="" decimalNodes="" octalNodes="" asciiNodes="" visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" name="due_rowley_rtos" />
+ </Register4>
+ <TargetWindow programAction="" uploadFileType="" programLoadAddress="" programSize="" uploadFileName="" uploadMemoryInterface="" programFileName="" uploadStartAddress="" programFileType="" uploadSize="" programMemoryInterface="" />
+ <TraceWindow>
+  <Trace enabled="Yes" />
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never" >
+   <Watchpoint linenumber="3522" radix="16" name="ulStatsAsPercentage" expression="ulStatsAsPercentage" filename="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/tasks.c" />
+   <Watchpoint linenumber="288" radix="16" name="uxTopReadyPriority" expression="uxTopReadyPriority" filename="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/tasks.c" />
+   <Watchpoint linenumber="512" radix="16" name="XL" expression="XL" filename="/home/camel/workspace/crossworks/due_RTOS/ili9341.c" />
+   <Watchpoint evalMode="1" linenumber="126" evalType="1" radix="-1" name="pxOverflowDelayedTaskList" expression="pxOverflowDelayedTaskList" filename="/home/camel/workspace/crossworks/due_RTOS/threads_CM3.js" />
+   <Watchpoint linenumber="53" radix="16" name="bits" expression="bits" filename="/home/camel/workspace/crossworks/due_RTOS/dht11.c" />
+   <Watchpoint linenumber="106" radix="-1" name="uxTopReadyPriority" expression="uxTopReadyPriority" filename="/home/camel/workspace/crossworks/due_RTOS/threads_CM3.js" />
+   <Watchpoint evalMode="2" linenumber="113" numelements="25" evalType="0" radix="-1" name="pxReadyTasksLists" expression="pxReadyTasksLists" filename="/home/camel/workspace/crossworks/due_RTOS/threads_CM3.js" />
+   <Watchpoint evalMode="2" linenumber="117" numelements="5" evalType="0" radix="-1" name="dht_resp" expression="dht_resp" filename="/home/camel/workspace/crossworks/due_RTOS/main.c" />
+   <Watchpoint evalMode="1" linenumber="125" evalType="1" radix="-1" name="pxDelayedTaskList" expression="pxDelayedTaskList" filename="/home/camel/workspace/crossworks/due_RTOS/threads_CM3.js" />
+  </Watches>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never" />
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never" />
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never" />
+ </Watch4>
+ <Files>
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/main.c" y="360" path="/home/camel/workspace/crossworks/due_RTOS/main.c" left="0" selected="1" name="unnamed" top="356" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/FreeRTOSConfig.h" y="124" path="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/FreeRTOSConfig.h" left="0" selected="0" name="unnamed" top="111" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/tasks.c" y="2557" path="/home/camel/workspace/crossworks/due_RTOS/FreeRTOS/tasks.c" left="0" selected="0" name="unnamed" top="2535" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/run-time-stats-utils.c" y="85" path="/home/camel/workspace/crossworks/due_RTOS/run-time-stats-utils.c" left="0" selected="0" name="unnamed" top="78" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/usr/share/crossworks_for_arm_3.3/include/stdio.h" y="101" path="/usr/share/crossworks_for_arm_3.3/include/stdio.h" left="0" selected="0" name="unnamed" top="72" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/usr/share/crossworks_for_arm_3.3/include/cross_studio_io.h" y="223" path="/usr/share/crossworks_for_arm_3.3/include/cross_studio_io.h" left="0" selected="0" name="unnamed" top="207" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/board_source/exceptions.c" y="230" path="/home/camel/workspace/crossworks/due_RTOS/board_source/exceptions.c" left="0" selected="0" name="unnamed" top="213" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/board_source/arduino_due_x/init.c" y="47" path="/home/camel/workspace/crossworks/due_RTOS/board_source/arduino_due_x/init.c" left="0" selected="0" name="unnamed" top="47" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/board_source/pwm/pwm.h" y="319" path="/home/camel/workspace/crossworks/due_RTOS/board_source/pwm/pwm.h" left="0" selected="0" name="unnamed" top="307" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/board_source/delay/sam/cycle_counter.c" y="52" path="/home/camel/workspace/crossworks/due_RTOS/board_source/delay/sam/cycle_counter.c" left="0" selected="0" name="unnamed" top="39" />
+  <SessionOpenFile useTextEdit="1" useBinaryEdit="0" codecName="Default" x="0" debugPath="/home/camel/workspace/crossworks/due_RTOS/include/task.h" y="332" path="/home/camel/workspace/crossworks/due_RTOS/include/task.h" left="0" selected="0" name="unnamed" top="303" />
+ </Files>
+ <ARMCrossStudioWindow activeProject="due_rowley_rtos" autoConnectTarget="SEGGER J-Link" debugSearchFileMap="" fileDialogInitialDirectory="/home/camel/workspace/crossworks/due_RTOS/board_source/pwm" fileDialogDefaultFilter="*.c" autoConnectCapabilities="127" debugSearchPath="" buildConfiguration="THUMB Flash Debug" />
+</session>

@@ -1,0 +1,91 @@
+// Copyright (c) 2012 Rowley Associates Limited.
+//
+// This file may be distributed under the terms of the License Agreement
+// provided with this software.
+//
+// THIS FILE IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE
+// WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+//
+////////////////////////////////////////////////////////////////////////////////
+//
+//                        Atmel SAM3X-EK UART Example
+//
+// Description
+// -----------
+// This example demonstrates configuring and writing to a UART. It also 
+// demonstrates how to get printf output over the UART by implementing 
+// __putchar.
+//
+// To see output:
+//   - Connect serial cable from the UART connector on the board to your host
+//     computer.
+//   - Open CrossStudio's "Terminal Emulator Window". Configure it to 9600 baud, 
+//     8 data bits, no parity, 2 stop bits. Click "Connect" to start the
+//     terminal emulator window.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#include <uart.h>
+
+void
+UARTInitialize(unsigned long baudrate)
+{
+  PMC->PMC_PCER0 = PMC_PCER0_UART0;
+  UART->UART_CR = UART_CR_RSTRX | UART_CR_RSTTX | UART_CR_RXDIS | UART_CR_TXDIS;
+  UART->UART_RCR = 0x00000000;
+  UART->UART_TCR = 0x00000000;
+  UART->UART_IDR = 0xFFFFFFFF;
+  PIOA->PIO_PDR = (1 << 9) | (1 << 10);
+  UART->UART_MR = UART_MR_PAR_NO; // Normal mode, no parity
+  SystemCoreClockUpdate();
+  UART->UART_BRGR = SystemCoreClock / (16 * baudrate);
+  UART->UART_CR = UART_CR_TXEN | UART_CR_RXEN;
+}
+
+void
+UARTWriteChar(char ch)
+{
+  while (!(UART->UART_SR & UART_SR_TXRDY));
+  UART->UART_THR = ch;
+}
+
+void UARTWriteStr(char *msg)
+{
+int i = 0;
+  while (msg[i] != '\0')
+  {
+  UARTWriteChar(msg[i++]);
+  }
+}
+
+char
+UARTReadChar()
+{
+  while (!(UART->UART_SR & UART_SR_RXRDY));
+  return (char)UART->UART_RHR;
+}
+
+int
+UARTReadAvailable(void)
+{
+  return UART->UART_SR & UART_SR_RXRDY;
+}
+
+void __putchar(int ch)
+{
+  if (ch == '\n')
+    UARTWriteChar('\r');
+  UARTWriteChar(ch);
+}
+
+int
+poll_uart(void)
+{
+      if (UARTReadAvailable())
+        {
+          char ch = UARTReadChar();
+          printf("Key \'%c\' pressed\n", ch);
+        }
+  return 0;
+}

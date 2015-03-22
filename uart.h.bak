@@ -1,0 +1,27 @@
+#ifndef MYUART_H
+#define MYUART_H
+
+#include <sam.h>
+#include <stdio.h>
+
+#define PMC_PCER0_UART0 PMC_PCER0_PID8
+
+void
+UARTInitialize(unsigned long baudrate);
+
+
+void
+UARTWriteChar(char ch);
+
+char
+UARTReadChar(void);
+
+int
+UARTReadAvailable(void);
+
+void __putchar(int ch);
+
+int
+poll_uart(void);
+
+#endif

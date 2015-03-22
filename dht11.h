@@ -1,0 +1,36 @@
+#ifndef dht11_h
+#define dht11_h
+
+#include <stdint.h>
+#include <sam3x8e.h>
+#include <pio.h>
+#include <delay.h>
+#include <timetick.h>
+
+
+#define DHT_PIN ( 1 << 12)
+#define DHT_PORT PIOC
+#define DHT_PORT_ID ID_PIOC
+
+#define DHT_LIB_VERSION "0.1.13"
+
+#define DHTLIB_OK                0
+#define DHTLIB_ERROR_CHECKSUM   -1
+#define DHTLIB_ERROR_TIMEOUT    -2
+#define DHTLIB_INVALID_VALUE    -999
+
+#define DHTLIB_DHT11_WAKEUP     18
+#define DHTLIB_DHT_WAKEUP       1
+
+#define NUM_BYTES				5
+#define NUM_BITS				8
+#define DHTLIB_TIMEOUT          500
+
+#define MAXTIMINGS 85
+
+uint32_t micros( void );
+void dht_init(void);
+uint32_t dht_read_sensor(uint8_t *bits);
+
+#endif
+
